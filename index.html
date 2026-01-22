@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodieGo Pro+ | Smart Delivery & Recipes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide-react/0.263.1/lucide-react.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .step-active { color: #f97316; }
+        .step-complete { color: #22c55e; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-morphism border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('home')">
+                <div class="bg-orange-500 p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </div>
+                <span class="text-xl font-bold tracking-tight text-orange-600">FoodieGo <span class="text-slate-800">Pro+</span></span>
+            </div>
+
+            <div class="hidden md:flex items-center gap-8 font-medium">
+                <button onclick="switchTab('menu')" class="hover:text-orange-500 transition-colors">Menu</button>
+                <button onclick="switchTab('recipes')" class="hover:text-orange-500 transition-colors">Recipes</button>
+                <button onclick="switchTab('tracking')" class="hover:text-orange-500 transition-colors">Live Track</button>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleCart()" class="relative p-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span id="cart-count" class="absolute top-0 right-0 bg-orange-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
+                </button>
+                <button class="bg-slate-900 text-white px-5 py-2 rounded-full font-medium hover:bg-slate-800 transition-all">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12 max-w-7xl mx-auto px-4">
+        
+        <!-- Home Section -->
+        <section id="home-view" class="view-content py-12">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-5xl lg:text-7xl font-extrabold leading-tight mb-6">
+                        Hungry? We’ve <br><span class="text-orange-500">Got You Covered.</span>
+                    </h1>
+                    <p class="text-slate-600 text-lg mb-8 max-w-md">
+                        Experience the next generation of food tech. Order from top restaurants or discover chef-grade recipes to cook at home.
+                    </p>
+                    <div class="flex gap-4">
+                        <button onclick="switchTab('menu')" class="bg-orange-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-lg hover:shadow-orange-200 transition-all">Order Now</button>
+                        <button onclick="switchTab('recipes')" class="bg-white border-2 border-slate-200 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-slate-50 transition-all">View Recipes</button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="bg-orange-100 rounded-full w-full aspect-square absolute -z-10 animate-pulse"></div>
+                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80" alt="Hero Food" class="rounded-3xl shadow-2xl animate-float">
+                </div>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section id="menu-view" class="view-content hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold">Discover Delicious Food</h2>
+                    <p class="text-slate-500">Freshly prepared and delivered to your doorstep.</p>
+                </div>
+                <div class="flex gap-2">
+                    <select id="category-filter" onchange="renderMenu()" class="border border-slate-200 rounded-xl px-4 py-2 bg-white outline-none">
+                        <option value="all">All Categories</option>
+                        <option value="Main Course">Main Course</option>
+                        <option value="Fast Food">Fast Food</option>
+                        <option value="Salads">Salads</option>
+                        <option value="Desserts">Desserts</option>
+                    </select>
+                </div>
+            </div>
+            <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Menu items injected here -->
+            </div>
+        </section>
+
+        <!-- Recipes Section -->
+        <section id="recipes-view" class="view-content hidden">
+            <h2 class="text-3xl font-bold mb-8 text-center">Chef's Recipe Book</h2>
+            <div id="recipe-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Recipes injected here -->
+            </div>
+        </section>
+
+        <!-- Tracking Section -->
+        <section id="tracking-view" class="view-content hidden max-w-2xl mx-auto">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold">Order Tracking</h2>
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">ID: #FGP-9821</span>
+                </div>
+                
+                <div class="space-y-12 relative before:content-[''] before:absolute before:left-[17px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-100">
+                    <div class="flex gap-6 relative">
+                        <div class="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center text-white z-10">✓</div>
+                        <div>
+                            <p class="font-bold text-slate-900">Order Placed</p>
+                            <p class="text-sm text-slate-500">12:30 PM - We have received your order</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6 relative">
+                        <div class="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center text-white z-10 ring-4 ring-orange-100">
+                            <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-bold text-orange-600">Preparing Food</p>
+                            <p class="text-sm text-slate-500">Chef is working on your delicious meal</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6 relative">
+                        <div class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 z-10">3</div>
+                        <div>
+                            <p class="font-bold text-slate-400">On the Way</p>
+                            <p class="text-sm text-slate-400">Rider will pick up shortly</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6 relative">
+                        <div class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 z-10">4</div>
+                        <div>
+                            <p class="font-bold text-slate-400">Delivered</p>
+                            <p class="text-sm text-slate-400">Enjoy your meal!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 p-4 bg-slate-50 rounded-2xl flex items-center gap-4">
+                    <img src="https://ui-avatars.com/api/?name=Alex+Rider&background=orange&color=fff" class="w-12 h-12 rounded-full">
+                    <div>
+                        <p class="font-bold">Alex (Rider)</p>
+                        <p class="text-xs text-slate-500">4.9 ★ Rating</p>
+                    </div>
+                    <button class="ml-auto bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-medium">Call</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Shopping Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 ease-in-out border-l border-slate-200">
+        <div class="h-full flex flex-col p-6">
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="text-2xl font-bold">Your Basket</h3>
+                <button onclick="toggleCart()" class="p-2 hover:bg-slate-100 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l18 18" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="cart-items" class="flex-grow overflow-y-auto custom-scrollbar space-y-4">
+                <!-- Cart items here -->
+            </div>
+
+            <div class="pt-6 border-t border-slate-100 space-y-4">
+                <div class="flex justify-between text-slate-500">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">$0.00</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                    <span>Delivery Fee</span>
+                    <span>$2.99</span>
+                </div>
+                <div class="flex justify-between text-xl font-bold">
+                    <span>Total</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+                <button onclick="checkout()" class="w-full bg-orange-500 text-white py-4 rounded-2xl font-bold hover:bg-orange-600 transition-colors shadow-lg shadow-orange-100">
+                    Place Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Button -->
+    <button onclick="toggleChat()" class="fixed bottom-6 right-6 bg-slate-900 text-white p-4 rounded-full shadow-2xl z-50 hover:scale-110 transition-transform">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="chat-window" class="fixed bottom-24 right-6 w-80 h-96 bg-white rounded-3xl shadow-2xl z-50 border border-slate-100 flex flex-col hidden overflow-hidden">
+        <div class="bg-slate-900 p-4 text-white flex items-center gap-2">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span class="font-medium">Foodie Assistant</span>
+        </div>
+        <div id="chat-messages" class="flex-grow p-4 overflow-y-auto custom-scrollbar space-y-3 text-sm">
+            <div class="bg-slate-100 p-3 rounded-2xl rounded-tl-none mr-8">
+                Hi! How can I help you today? I can suggest menu items or track your order.
+            </div>
+        </div>
+        <div class="p-3 border-t border-slate-100">
+            <div class="flex gap-2">
+                <input id="chat-input" type="text" placeholder="Type here..." class="flex-grow bg-slate-50 border-none rounded-xl px-4 py-2 outline-none text-sm focus:ring-1 ring-orange-500">
+                <button onclick="sendMessage()" class="bg-orange-500 text-white p-2 rounded-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="modal-container" class="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4 hidden">
+        <div id="modal-content" class="bg-white rounded-3xl p-8 max-w-sm w-full text-center">
+            <div id="modal-icon" class="mb-4 flex justify-center"></div>
+            <h3 id="modal-title" class="text-xl font-bold mb-2"></h3>
+            <p id="modal-desc" class="text-slate-500 mb-6"></p>
+            <button onclick="closeModal()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-medium">Awesome</button>
+        </div>
+    </div>
+
+    <script>
+        // Data Store
+        const menuItems = [
+            { id: 1, name: "Grilled Salmon Bowl", price: 18.99, rating: 4.8, category: "Main Course", image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=400&q=80", time: "25-30 min" },
+            { id: 2, name: "Classic Avocado Toast", price: 12.50, rating: 4.5, category: "Salads", image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=400&q=80", time: "15-20 min" },
+            { id: 3, name: "Truffle Beef Burger", price: 15.99, rating: 4.9, category: "Fast Food", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80", time: "20-25 min" },
+            { id: 4, name: "Thai Green Curry", price: 14.20, rating: 4.7, category: "Main Course", image: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?auto=format&fit=crop&w=400&q=80", time: "30-35 min" },
+            { id: 5, name: "Greek Caesar Salad", price: 10.99, rating: 4.3, category: "Salads", image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80", time: "10-15 min" },
+            { id: 6, name: "Molten Choco Lava", price: 8.50, rating: 4.9, category: "Desserts", image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=400&q=80", time: "15 min" },
+            { id: 7, name: "Margherita Woodfire", price: 13.99, rating: 4.6, category: "Fast Food", image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=400&q=80", time: "20-25 min" },
+            { id: 8, name: "Berry Smoothie Bowl", price: 9.99, rating: 4.4, category: "Desserts", image: "https://images.unsplash.com/photo-1494597564530-871f2b93ac55?auto=format&fit=crop&w=400&q=80", time: "10 min" }
+        ];
+
+        const recipes = [
+            {
+                name: "Mediterranean Roast Chicken",
+                servings: 4,
+                calories: "450 kcal",
+                time: "45 min",
+                ingredients: ["Chicken breast", "Olive oil", "Lemon", "Garlic", "Rosemary"],
+                steps: "1. Marinate chicken with oil and herbs. 2. Roast at 200°C for 30 minutes. 3. Squeeze lemon before serving.",
+                image: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                name: "Vegan Power Bowl",
+                servings: 2,
+                calories: "320 kcal",
+                time: "15 min",
+                ingredients: ["Quinoa", "Avocado", "Kale", "Chickpeas", "Tahini dressing"],
+                steps: "1. Cook quinoa. 2. Massage kale with oil. 3. Combine ingredients and drizzle dressing.",
+                image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80"
+            }
+        ];
+
+        let cart = [];
+        let currentTab = 'home';
+
+        // Initialize
+        window.onload = () => {
+            renderMenu();
+            renderRecipes();
+            updateCartUI();
+        };
+
+        // UI Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-content').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`${tabId}-view`).classList.remove('hidden');
+            window.scrollTo(0, 0);
+            currentTab = tabId;
+        }
+
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            sidebar.classList.toggle('translate-x-full');
+        }
+
+        function toggleChat() {
+            const chat = document.getElementById('chat-window');
+            chat.classList.toggle('hidden');
+        }
+
+        // Menu Logic
+        function renderMenu() {
+            const filter = document.getElementById('category-filter').value;
+            const container = document.getElementById('menu-grid');
+            container.innerHTML = '';
+
+            const filtered = filter === 'all' ? menuItems : menuItems.filter(item => item.category === filter);
+
+            filtered.forEach(item => {
+                container.innerHTML += `
+                    <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1 text-xs font-bold">
+                                <span>★</span> ${item.rating}
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold text-lg">${item.name}</h4>
+                                <span class="text-orange-500 font-bold">$${item.price.toFixed(2)}</span>
+                            </div>
+                            <p class="text-slate-400 text-xs mb-4 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                ${item.time}
+                            </p>
+                            <button onclick="addToCart(${item.id})" class="w-full py-2 bg-slate-50 text-slate-900 rounded-xl font-bold border border-slate-200 hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Cart Logic
+        function addToCart(id) {
+            const item = menuItems.find(i => i.id === id);
+            const existing = cart.find(c => c.id === id);
+            
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({...item, quantity: 1});
+            }
+            
+            updateCartUI();
+            showModal('Item Added!', `${item.name} is now in your basket.`, 'success');
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items');
+            const countLabel = document.getElementById('cart-count');
+            const subtotalLabel = document.getElementById('cart-subtotal');
+            const totalLabel = document.getElementById('cart-total');
+
+            container.innerHTML = '';
+            let subtotal = 0;
+            let count = 0;
+
+            cart.forEach((item, index) => {
+                subtotal += item.price * item.quantity;
+                count += item.quantity;
+                container.innerHTML += `
+                    <div class="flex gap-4 items-center bg-slate-50 p-3 rounded-2xl">
+                        <img src="${item.image}" class="w-16 h-16 rounded-xl object-cover">
+                        <div class="flex-grow">
+                            <h5 class="font-bold text-sm">${item.name}</h5>
+                            <p class="text-orange-500 text-xs font-bold">$${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="changeQty(${index}, -1)" class="w-6 h-6 flex items-center justify-center bg-white border border-slate-200 rounded-lg">-</button>
+                            <span class="text-xs font-bold">${item.quantity}</span>
+                            <button onclick="changeQty(${index}, 1)" class="w-6 h-6 flex items-center justify-center bg-white border border-slate-200 rounded-lg">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            countLabel.innerText = count;
+            subtotalLabel.innerText = `$${subtotal.toFixed(2)}`;
+            totalLabel.innerText = `$${(subtotal > 0 ? subtotal + 2.99 : 0).toFixed(2)}`;
+        }
+
+        function changeQty(index, delta) {
+            cart[index].quantity += delta;
+            if (cart[index].quantity <= 0) cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        // Recipe Logic
+        function renderRecipes() {
+            const container = document.getElementById('recipe-grid');
+            recipes.forEach(recipe => {
+                container.innerHTML += `
+                    <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 flex flex-col md:flex-row">
+                        <img src="${recipe.image}" class="w-full md:w-48 h-48 md:h-auto object-cover">
+                        <div class="p-6">
+                            <div class="flex gap-2 mb-2">
+                                <span class="bg-orange-100 text-orange-600 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider">${recipe.calories}</span>
+                                <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider">${recipe.time}</span>
+                            </div>
+                            <h4 class="text-xl font-bold mb-4">${recipe.name}</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 uppercase mb-1">Ingredients</p>
+                                    <p class="text-sm text-slate-600">${recipe.ingredients.join(', ')}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-400 uppercase mb-1">Steps</p>
+                                    <p class="text-sm text-slate-600 line-clamp-2">${recipe.steps}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Chatbot Simulation
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const messages = document.getElementById('chat-messages');
+            const val = input.value.trim();
+            
+            if(!val) return;
+
+            // User Message
+            messages.innerHTML += `
+                <div class="bg-orange-500 text-white p-3 rounded-2xl rounded-tr-none ml-8 text-right">
+                    ${val}
+                </div>
+            `;
+            
+            input.value = '';
+            
+            // Bot logic
+            setTimeout(() => {
+                let reply = "I'm not sure about that. Try asking for 'menu' or 'status'!";
+                const lowerVal = val.toLowerCase();
+                
+                if (lowerVal.includes('menu')) {
+                    reply = "Our top items today are the Grilled Salmon Bowl and Truffle Burger! Would you like to see the menu tab?";
+                } else if (lowerVal.includes('track') || lowerVal.includes('status')) {
+                    reply = "Your last order #FGP-9821 is currently being prepared! Head to the Live Track tab for real-time updates.";
+                } else if (lowerVal.includes('hello') || lowerVal.includes('hi')) {
+                    reply = "Hello! Foodie Assistant here. I can help you find meals or track your orders.";
+                }
+
+                messages.innerHTML += `
+                    <div class="bg-slate-100 p-3 rounded-2xl rounded-tl-none mr-8">
+                        ${reply}
+                    </div>
+                `;
+                messages.scrollTop = messages.scrollHeight;
+            }, 600);
+        }
+
+        // Order Action
+        function checkout() {
+            if(cart.length === 0) {
+                showModal('Basket Empty', 'Add some delicious food before checking out!', 'error');
+                return;
+            }
+            
+            toggleCart();
+            showModal('Order Success!', 'Your food is being prepared. Redirecting to tracking...', 'success');
+            setTimeout(() => {
+                cart = [];
+                updateCartUI();
+                switchTab('tracking');
+                closeModal();
+            }, 2000);
+        }
+
+        // Modal Handler
+        function showModal(title, desc, type) {
+            const container = document.getElementById('modal-container');
+            const titleEl = document.getElementById('modal-title');
+            const descEl = document.getElementById('modal-desc');
+            const iconEl = document.getElementById('modal-icon');
+
+            titleEl.innerText = title;
+            descEl.innerText = desc;
+            
+            iconEl.innerHTML = type === 'success' ? 
+                '<div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center text-3xl">✓</div>' :
+                '<div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-3xl">!</div>';
+
+            container.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-container').classList.add('hidden');
+        }
+
+        // Support Enter key for chat
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
